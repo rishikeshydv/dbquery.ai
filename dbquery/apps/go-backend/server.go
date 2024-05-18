@@ -2,12 +2,21 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 	"os"
 
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	openai "github.com/sashabaranov/go-openai"
 )
+
+// RequestPayload defines the structure of the expected JSON body
+type RequestBody struct {
+	Prompt string `json:"prompt"`
+}
 
 // use godot package to load/read the .env file and
 // return the value of the key
@@ -36,7 +45,7 @@ func goDotEnvVariable(key string) string {
 	return value
 }
 
-func resultGen(prompt_ string) {
+func resultGen(prompt_ string) (string, error) {
 	// godotenv package
 	secretKey := goDotEnvVariable("OPENAI_SECRET_KEY")
 
@@ -58,12 +67,42 @@ func resultGen(prompt_ string) {
 
 	if err != nil {
 		fmt.Printf("ChatCompletion error: %v\n", err)
-		return
+		return "", err
 	}
 
 	fmt.Println(resp.Choices[0].Message.Content)
+	return resp.Choices[0].Message.Content, nil
+}
+
+func getResponse(w http.ResponseWriter, r *http.Request) {
+
+	// Parse the JSON body
+	var reqBody RequestBody
+	err := json.NewDecoder(r.Body).Decode(&reqBody)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Process the prompt
+	fmt.Printf("Received: %v\n", reqBody.Prompt)
+
+	// Generate the response
+	w.Header().Set("Content-Type", "application/json")
+	gptOutput, err := resultGen(reqBody.Prompt)
+	if err != nil {
+		http.Error(w, "Error generating response", http.StatusInternalServerError)
+		return
+	}
+	response := map[string]string{"result": gptOutput}
+	json.NewEncoder(w).Encode(response)
 }
 
 func main() {
-	resultGen("How are you?")
+
+	//handling requests
+	myRouter := mux.NewRouter()
+	myRouter.HandleFunc("/api/v1/dbquery/firebase", getResponse).Methods("POST")
+	fmt.Printf("Server started at http://localhost:8080\n")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }

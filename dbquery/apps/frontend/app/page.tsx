@@ -3,14 +3,27 @@
 * @see https://v0.dev/t/ZFxL7Nxs5ve
 * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
 */
+"use client";
 
-import React from "react"
+import React, { useState } from "react"
 import { SelectValue, SelectTrigger, SelectItem, SelectGroup, SelectContent, Select } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import Link from "next/link"
+const axios = require('axios');
 
 export default function Home() {
+  const [promptText, setPromptText] = useState<string>("");
+  const [responseCode, setResponseCode] = useState<string>("");
+  const sendPrompt = (prompt:string) => {
+    axios.post('http://localhost:8080/api/v1/dbquery/firebase', {prompt: prompt})
+    .then((response:any) => {
+      console.log(response); 
+      setResponseCode(response.data.result);
+    })
+    .catch((error:any) => {
+      console.log(error);
+    });
+  }
   return (
     <section className="grid grid-cols-2 gap-20 p-40 bg-blue-200 h-screen">
       <div className="space-y-4">
@@ -30,7 +43,7 @@ export default function Home() {
               </SelectGroup>
             </SelectContent>
           </Select>
-          <Textarea placeholder="Your message" className="text-lg"/>
+          <Textarea placeholder="Your message" className="text-lg" onChange={(e:any)=>setPromptText(e.target.value)}/>
           <Button className="w-full" type="submit">
             Submit
           </Button>
@@ -39,6 +52,7 @@ export default function Home() {
       <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-8 flex justify-center">
         <div className="max-w-[500px] text-center space-y-4">
           <h3 className="text-2xl font-bold">Results:</h3>
+          {responseCode && <p className="text-lg">{responseCode}</p>}
         </div>
       </div>
     </section>

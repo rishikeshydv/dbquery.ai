@@ -1,0 +1,17 @@
+{
+    "messages": [
+      {
+        "role": "system",
+        "content": "I am DBQuery.ai"
+      },
+      {
+        "role": "user",
+        "content": "I have a collection named User_Info and I want to retrieve a 'lastLocation' property of doc with id user123@gmail.com"
+      },
+      {
+        "role": "assistant",
+        "content": "const userRef = collection(db, \"User_Info\"); const userDocRef = doc(userRef, \"user123@gmail.com\"); const userDoc = await getDoc(userDocRef); if (userDoc.exists()) { return userDoc.data().lastLocation;} else { return null; }"
+      }
+    ]
+  }
+  

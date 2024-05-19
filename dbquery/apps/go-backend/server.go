@@ -52,10 +52,37 @@ func resultGen(prompt_ string) (string, error) {
 	// create a new client
 	client := openai.NewClient(secretKey)
 	ctx := context.Background()
+
+	//fine-tuning the model
+	file, err := client.CreateFile(ctx, openai.FileRequest{
+		FilePath: "training_datasets.json",
+		Purpose:  "fine-tune",
+	})
+	if err != nil {
+		fmt.Printf("Upload JSONL file error: %v\n", err)
+		return "", err
+	}
+
+	fineTuningJob, err := client.CreateFineTuningJob(ctx, openai.FineTuningJobRequest{
+		TrainingFile: file.ID,
+		Model:        "gpt-3.5-turbo-0613", // gpt-3.5-turbo-0613, babbage-002.
+	})
+	if err != nil {
+		fmt.Printf("Creating new fine tune model error: %v\n", err)
+		return "", err
+	}
+
+	fineTuningJob, err = client.RetrieveFineTuningJob(ctx, fineTuningJob.ID)
+	if err != nil {
+		fmt.Printf("Getting fine tune model error: %v\n", err)
+		return "", err
+	}
+	fmt.Println(fineTuningJob.FineTunedModel)
+
 	resp, err := client.CreateChatCompletion(
 		ctx,
 		openai.ChatCompletionRequest{
-			Model: openai.GPT3Dot5Turbo,
+			Model: fineTuningJob.FineTunedModel,
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role:    openai.ChatMessageRoleUser,

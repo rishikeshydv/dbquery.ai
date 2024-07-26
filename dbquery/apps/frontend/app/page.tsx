@@ -17,19 +17,18 @@ export default function Home() {
   const [responseCode, setResponseCode] = useState<string>("");
   async function sendPrompt(e:any) {
     e.preventDefault();
-   await axios.post('http://54.83.89.143:9002/api/v1/dbquery/firebase', 
-    {
-      database: db,
-      prompt: promptText
-    }
-    )
-    .then((response:any) => {
-      //console.log(response.data.result); 
-      setResponseCode(response.data.result);
-    })
-    .catch((error:any) => {
-      console.log(error);
+    const response = await fetch('/api/v1/dbquery/firebase', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        database: db,
+        prompt: promptText,
+      }),
     });
+    const data = await response.json();
+    setResponseCode(data.result);
   }
   return (
     <section className="grid grid-cols-2 gap-20 p-40 bg-blue-200 h-screen">

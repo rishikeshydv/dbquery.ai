@@ -38,12 +38,18 @@ func GetResponse(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	response := map[string]string{"status": "ok"}
+	json.NewEncoder(w).Encode(response)
+}
+
 func main() {
 
 	//handling requests
 	myRouter := mux.NewRouter()
 	myRouter.HandleFunc("/api/v1/dbquery/firebase", GetResponse).Methods("POST")
-
+	myRouter.HandleFunc("/api/v1/health", HealthCheck).Methods("GET")
 	// Create a CORS handler with the desired options
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3008"},
@@ -53,6 +59,6 @@ func main() {
 		AllowCredentials: true,
 	})
 	handler := c.Handler(myRouter)
-	fmt.Printf("Server started at http://localhost:9000")
-	log.Fatal(http.ListenAndServe(":9000", handler))
+	fmt.Printf("Server started at http://localhost:9002")
+	log.Fatal(http.ListenAndServe(":9002", handler))
 }

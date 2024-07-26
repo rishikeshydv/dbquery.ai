@@ -12,12 +12,19 @@ import { Textarea } from "@/components/ui/textarea"
 const axios = require('axios');
 
 export default function Home() {
+  const [db,setDb] = useState<string>("");
   const [promptText, setPromptText] = useState<string>("");
   const [responseCode, setResponseCode] = useState<string>("");
-  const sendPrompt = (prompt:string) => {
-    axios.post('http://localhost:8080/api/v1/dbquery/firebase', {prompt: prompt})
+  async function sendPrompt(e:any) {
+    e.preventDefault();
+   await axios.post('http://localhost:9000/api/v1/dbquery/firebase', 
+    {
+      database: db,
+      prompt: promptText
+    }
+    )
     .then((response:any) => {
-      console.log(response); 
+      //console.log(response.data.result); 
       setResponseCode(response.data.result);
     })
     .catch((error:any) => {
@@ -28,23 +35,23 @@ export default function Home() {
     <section className="grid grid-cols-2 gap-20 p-40 bg-blue-200 h-screen">
       <div className="space-y-4">
         <h2 className="text-3xl font-bold text-black">DBQuery.ai</h2>
-        <p className="text-black text-2xl">Demo {String.fromCodePoint('0x1f9be',16)}</p>
+        <p className="text-black text-2xl">Demo 💪🏻</p>
         <form className="space-y-4">
-          <Select>
+          <Select onValueChange={(e)=>setDb(e)}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Choose your DB" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="general">Firebase</SelectItem>
-                <SelectItem value="sales">Supabase</SelectItem>
-                <SelectItem value="support">Postgresql</SelectItem>
-                <SelectItem value="partnership">MongoDB</SelectItem>
+                <SelectItem value="Firebase">Firebase</SelectItem>
+                <SelectItem value="Supabase">Supabase</SelectItem>
+                <SelectItem value="Postgresql">Postgresql</SelectItem>
+                <SelectItem value="MongoDB">MongoDB</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
           <Textarea placeholder="Your message" className="text-lg" onChange={(e:any)=>setPromptText(e.target.value)}/>
-          <Button className="w-full" type="submit">
+          <Button className="w-full" type="submit" onClick={sendPrompt}>
             Submit
           </Button>
         </form>

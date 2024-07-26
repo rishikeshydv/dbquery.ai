@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 // RequestBody defines the structure of the expected JSON body
@@ -17,7 +18,6 @@ type RequestBody struct {
 }
 
 func GetResponse(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the HomePage!")
 	// Parse the JSON body
 	var reqBody RequestBody
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
@@ -43,6 +43,16 @@ func main() {
 	//handling requests
 	myRouter := mux.NewRouter()
 	myRouter.HandleFunc("/api/v1/dbquery/firebase", GetResponse).Methods("POST")
-	fmt.Printf("Server started at http://localhost:1234")
-	log.Fatal(http.ListenAndServe(":1234", myRouter))
+
+	// Create a CORS handler with the desired options
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3008"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		ExposedHeaders:   []string{"X-Total-Count"},
+		AllowCredentials: true,
+	})
+	handler := c.Handler(myRouter)
+	fmt.Printf("Server started at http://localhost:9000")
+	log.Fatal(http.ListenAndServe(":9000", handler))
 }

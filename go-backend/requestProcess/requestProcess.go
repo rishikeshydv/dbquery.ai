@@ -87,7 +87,7 @@ func ResultGen(db string, prompt_ string) (string, error) {
 				},
 				{
 					Role:    openai.ChatMessageRoleUser,
-					Content: "Use the database: " + db + " to get query for the following prompt: " + prompt_,
+					Content: "Use the database: " + db + " to get query code for the following prompt: " + prompt_ + "Make sure you return only the query code without any unnecessary texts.",
 				},
 			},
 		},

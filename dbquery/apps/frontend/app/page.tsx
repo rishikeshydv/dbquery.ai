@@ -17,7 +17,7 @@ export default function Home() {
   const [responseCode, setResponseCode] = useState<string>("");
   async function sendPrompt(e:any) {
     e.preventDefault();
-   await axios.post('http://localhost:9000/api/v1/dbquery/firebase', 
+   await axios.post('http://54.83.89.143:9002/api/v1/dbquery/firebase', 
     {
       database: db,
       prompt: promptText

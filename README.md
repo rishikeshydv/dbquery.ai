@@ -1,4 +1,4 @@
-### Live Demo: 
+### Live Demo: https://dbquery-ai.vercel.app/
 
 # dbquery.ai
 
